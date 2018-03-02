@@ -1,20 +1,18 @@
+# from selenium.webdriver.support.ui import Select
 from selenium import webdriver
 from selenium.common import exceptions as ex
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.support.ui import Select
 import os
-# import time
+import time
 from smtplib import SMTP_SSL
 from email import encoders
-from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
-from email.utils import formatdate
-
-
+# from email.mime.text import MIMEText
+# from email.utils import formatdate
 
 # cross
 EXEC_PATH = ''
@@ -76,9 +74,24 @@ except ex.NoSuchElementException:
     driver.quit()
     exit(1)
 
-# треш начинается отсюда
+# TRASH START HERE
 
+try:
+    WebDriverWait(driver, DELAY).until(ec.presence_of_element_located((
+        By.XPATH,
+        '//*[contains(text(), "%s")]' % 'Подать жалобу')))
+    time.sleep(5)
+    el = driver.find_element(By.XPATH, '//*[contains(text(), "%s")]' % SUB_SET)
+    print("OLOLO")
 
+except ex.TimeoutException:
+    print("TIME OUT")
+except ex.NoSuchElementException:
+    print("NO FIND")
+finally:
+    print("continue workaround")
+
+# workaround
 try:
     driver.get('https://www.cbr.ru/Reception/Message/Register?messageType=Gratitude')
     WebDriverWait(driver, DELAY).until(ec.element_to_be_clickable((By.TAG_NAME, 'textarea')))
@@ -128,4 +141,3 @@ smtp.quit()
 
 input()
 driver.quit()
-
