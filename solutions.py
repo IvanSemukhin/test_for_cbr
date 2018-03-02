@@ -6,7 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 # from selenium.webdriver.support.ui import Select
 import os
-import time
+# import time
+from smtplib import SMTP_SSL
+from email import encoders
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.utils import formatdate
+
 
 
 # cross
@@ -70,44 +77,55 @@ except ex.NoSuchElementException:
     exit(1)
 
 # треш начинается отсюда
+
+
 try:
-    time.sleep(5)
-    # WebDriverWait(driver, DELAY).until(ec.presence_of_element_located((By.XPATH, ".//*[@class='content_cols content_cols_2 no_visited reception_type_container']")))
-    # WebDriverWait(driver, DELAY).until(ec.presence_of_element_located((By.XPATH, "//a[text() = 'Подать Жалобу']")))
-    # WebDriverWait(driver, DELAY).until(ec.visibility_of_all_elements_located((By.TAG_NAME, 'link')))
-    # lst = driver.find_elements_by_xpath(".//*[@class='content_col button']/..")
-    # lst = driver.find_elements_by_xpath("//a[text() = 'Написать благодарность']")
-    # lst = driver.find_elements_by_xpath(".//*[@id='content']")
-    # lst = driver.find_elements_by_xpath("//a[text() = 'Подать жалобу']")
-    # lst = driver.find_elements(By.XPATH, ".//*[@href='/Reception/Message/Register?messageType=Gratitude']/..")
-    # lst = driver.find_elements(By.TAG_NAME, 'a')
-    # lst = driver.find_elements(By.XPATH, ".//*[@class='content']")
-    lst = driver.find_elements(By.TAG_NAME, 'frame')
-    print("OLOLO", lst)
+    driver.get('https://www.cbr.ru/Reception/Message/Register?messageType=Gratitude')
+    WebDriverWait(driver, DELAY).until(ec.element_to_be_clickable((By.TAG_NAME, 'textarea')))
+    lst = driver.find_elements(By.TAG_NAME, 'textarea')
     for elem in lst:
-        print("text:", elem.text)
-        if elem.text == 'Написать благодарность':
-            input()
+        if elem.get_attribute('id') == 'MessageBody':
+            elem.send_keys("thanks for watching")
+            break
+
+    lst = driver.find_elements(By.TAG_NAME, 'input')
+    for elem in lst:
+        if elem.get_attribute('type') == 'checkbox':
+            elem.click()
+            break
+    driver.get_screenshot_as_file('one.png')
 except ex.TimeoutException:
     print('ERROR')
     driver.quit()
     exit(1)
+except ex.NoSuchElementException:
+    print('NoSuchElementException')
+    driver.quit()
+    exit(1)
+
+filepath = "one.png"
+basename = os.path.basename(filepath)
+address = "onpython@yandex.ru"
+
+# Compose attachment
+part = MIMEBase('application', "octet-stream")
+part.set_payload(open(filepath, "rb").read())
+encoders.encode_base64(part)
+part.add_header('Content-Disposition', 'attachment; filename="%s"' % basename)
+
+# Compose message
+msg = MIMEMultipart()
+msg['From'] = address
+msg['To'] = address
+msg.attach(part)
+
+# Send mail
+smtp = SMTP_SSL()
+smtp.connect('smtp.yandex.ru')
+smtp.login(address, 'qwertyasdfzxcv')
+smtp.sendmail(address, address, msg.as_string())
+smtp.quit()
+
 input()
 driver.quit()
 
-# <h2>Написать благодарность</h2>
-
-# <a href="/Reception/Message/Register?messageType=Gratitude" class="reception_type">
-#       <h2>Написать благодарность</h2>
-#     </a>
-# //*[@id="content"]
-# driver.findElement(By.xpath(".//*[text()='Первая ссылка']/.."));
-# <span class="r5">5</span><a href="http://google.com">Google</a>
-# span[@class ='r5']
-# /html/body/div/div[1]/div[3]/div/div[2]/div[1]/div[3]/a
-# <div class="content_col button">
-#     <a href="/Reception/Message/Register?messageType=Gratitude" class="reception_type">
-#       <h2>Написать благодарность</h2>
-#     </a>
-#   </div>
-# content_cols content_cols_2 no_visited reception_type_container
