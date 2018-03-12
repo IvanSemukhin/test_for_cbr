@@ -116,13 +116,13 @@ except ex.NoSuchElementException:
     driver.quit()
     exit(1)
 
-filepath = "one.png"
-basename = os.path.basename(filepath)
+file = "one.png"
+basename = os.path.basename(file)
 address = "onpython@yandex.ru"
 
 # Compose attachment
 part = MIMEBase('application', "octet-stream")
-part.set_payload(open(filepath, "rb").read())
+part.set_payload(open(file, "rb").read())
 encoders.encode_base64(part)
 part.add_header('Content-Disposition', 'attachment; filename="%s"' % basename)
 
